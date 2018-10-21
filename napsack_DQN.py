@@ -10,7 +10,7 @@ import chainerrl
 #
 # 問題設定
 #
-CANRIES = [(2,2), (1,2), (3,6), (2,1), (1,3), (5,85)] # (weight,value)
+CANDIES = [(2,2), (1,2), (3,6), (2,1), (1,3), (5,85)] # (weight,value)
 W = 8
 
 class QFunction(chainer.Chain):
@@ -29,12 +29,12 @@ class QFunction(chainer.Chain):
 global_state = None
 
 def random_action():
-    ret =  random.randint(0, len(CANRIES))
+    ret =  random.randint(0, len(CANDIES))
     return ret
     #weight = global_state[0]
     #indexies = [0]
     #for i in range(len(global_state)-1):
-    #    if global_state[i+1] == 0 and CANRIES[i][0] + weight <= W:
+    #    if global_state[i+1] == 0 and CANDIES[i][0] + weight <= W:
     #        indexies.append(i+1)
     #ret = np.random.choice(indexies)
     #return ret
@@ -42,9 +42,9 @@ def random_action():
 def step(state, action):
     if action == 0:
         return state, 0, True
-    global CANRIES
+    global CANDIES
     if state[action] == 0:
-        candy = CANRIES[action-1]
+        candy = CANDIES[action-1]
         weight, reward = candy
         _state = state.tolist()
         _state[0] += weight
@@ -61,7 +61,7 @@ alpha = 0.5
 max_number_of_steps = 5
 num_episodes = 5000
 
-q_func = QFunction(len(CANRIES) + 1, len(CANRIES) + 1, 128)
+q_func = QFunction(len(CANDIES) + 1, len(CANDIES) + 1, 128)
 optimizer = chainer.optimizers.Adam(eps=1e-2)
 optimizer.setup(q_func)
 explorer = chainerrl.explorers.LinearDecayEpsilonGreedy(start_epsilon=1.0, end_epsilon=0.1, decay_steps=num_episodes, random_action_func=random_action)
@@ -73,7 +73,7 @@ agent = chainerrl.agents.DQN(
 )
 
 for episode in range(num_episodes):
-    global_state = state = np.zeros(1 + len(CANRIES), dtype = int)
+    global_state = state = np.zeros(1 + len(CANDIES), dtype = int)
     R = 0
     reward = 0
     done = False
@@ -92,7 +92,7 @@ for episode in range(num_episodes):
 agent.save('agent')
 
 print("--------------------")
-state = np.zeros(len(CANRIES) + 1, dtype = int)
+state = np.zeros(len(CANDIES) + 1, dtype = int)
 reward = 0
 for i in range(5):
     action = agent.act(state)
