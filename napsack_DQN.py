@@ -6,11 +6,14 @@ import chainer
 import chainer.functions as F
 import chainer.links as L
 import chainerrl
+import time
 
 #
 # 問題設定
 #
 CANDIES = [(2,2), (1,2), (3,6), (2,1), (1,3), (5,85)] # (weight,value)
+#CANDIES = [(2,2), (1,2), (3,6), (2,1), (1,3), (5,85), (1,1), (1,1), (1,1), (1,1), (1,1)] # (weight,value)
+N = len(CANDIES)
 W = 8
 
 class QFunction(chainer.Chain):
@@ -29,7 +32,7 @@ class QFunction(chainer.Chain):
 global_state = None
 
 def random_action():
-    ret =  random.randint(0, len(CANDIES))
+    ret =  random.randint(0, N)
     return ret
     #weight = global_state[0]
     #indexies = [0]
@@ -61,7 +64,7 @@ alpha = 0.5
 max_number_of_steps = 5
 num_episodes = 5000
 
-q_func = QFunction(len(CANDIES) + 1, len(CANDIES) + 1, 128)
+q_func = QFunction(N + 1, N + 1, 32 * N)
 optimizer = chainer.optimizers.Adam(eps=1e-2)
 optimizer.setup(q_func)
 explorer = chainerrl.explorers.LinearDecayEpsilonGreedy(start_epsilon=1.0, end_epsilon=0.1, decay_steps=num_episodes, random_action_func=random_action)
@@ -72,8 +75,10 @@ agent = chainerrl.agents.DQN(
     replay_start_size=500, update_interval=1, target_update_interval=100, phi=phi
 )
 
+start = time.time()
+
 for episode in range(num_episodes):
-    global_state = state = np.zeros(1 + len(CANDIES), dtype = int)
+    global_state = state = np.zeros(1 + N, dtype = int)
     R = 0
     reward = 0
     done = False
@@ -89,10 +94,14 @@ for episode in range(num_episodes):
     agent.stop_episode_and_train(state, reward, done)
 
     print('episode:', episode, 'R:', R, 'statistics:', agent.get_statistics())
+
+elapsed_time = time.time() - start
+print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+
 agent.save('agent')
 
 print("--------------------")
-state = np.zeros(len(CANDIES) + 1, dtype = int)
+state = np.zeros(N + 1, dtype = int)
 reward = 0
 for i in range(5):
     action = agent.act(state)
