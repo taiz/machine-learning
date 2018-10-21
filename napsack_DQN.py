@@ -11,8 +11,8 @@ import time
 #
 # 問題設定
 #
-CANDIES = [(2,2), (1,2), (3,6), (2,1), (1,3), (5,85)] # (weight,value)
-#CANDIES = [(2,2), (1,2), (3,6), (2,1), (1,3), (5,85), (1,1), (1,1), (1,1), (1,1), (1,1)] # (weight,value)
+#CANDIES = [(2,2), (1,2), (3,6), (2,1), (1,3), (5,85)] # (weight,value)
+CANDIES = [(2,2), (1,2), (3,6), (2,1), (1,3), (5,85), (1,0), (1,0), (1,0), (1,0), (1,0)] # (weight,value)
 N = len(CANDIES)
 W = 8
 
@@ -93,7 +93,7 @@ for episode in range(num_episodes):
         #    break
     agent.stop_episode_and_train(state, reward, done)
 
-    print('episode:', episode, 'R:', R, 'statistics:', agent.get_statistics())
+    print('episode:', episode, 'R:', R+1, 'statistics:', agent.get_statistics())
 
 elapsed_time = time.time() - start
 print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
