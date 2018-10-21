@@ -10,7 +10,7 @@ import chainerrl
 #
 # 問題設定
 #
-CANRIES = [(2,30), (1,2), (3,6), (2,1), (1,3), (5,85)] # (weight,value)
+CANRIES = [(2,2), (1,2), (3,6), (2,1), (1,3), (5,85)] # (weight,value)
 W = 8
 
 class QFunction(chainer.Chain):
@@ -37,7 +37,6 @@ def random_action():
     #    if global_state[i+1] == 0 and CANRIES[i][0] + weight <= W:
     #        indexies.append(i+1)
     #ret = np.random.choice(indexies)
-    #print(ret)
     #return ret
  
 def step(state, action):
@@ -62,7 +61,7 @@ alpha = 0.5
 max_number_of_steps = 5
 num_episodes = 5000
 
-q_func = QFunction(len(CANRIES) + 1, len(CANRIES) + 1)
+q_func = QFunction(len(CANRIES) + 1, len(CANRIES) + 1, 128)
 optimizer = chainer.optimizers.Adam(eps=1e-2)
 optimizer.setup(q_func)
 explorer = chainerrl.explorers.LinearDecayEpsilonGreedy(start_epsilon=1.0, end_epsilon=0.1, decay_steps=num_episodes, random_action_func=random_action)
@@ -89,11 +88,14 @@ for episode in range(num_episodes):
         #    break
     agent.stop_episode_and_train(state, reward, done)
 
-    print('episode : %d total reward %d' %(episode+1, R))
+    print('episode:', episode, 'R:', R, 'statistics:', agent.get_statistics())
 agent.save('agent')
 
+print("--------------------")
 state = np.zeros(len(CANRIES) + 1, dtype = int)
+reward = 0
 for i in range(5):
     action = agent.act(state)
-    print(state, action)
-    state, _, _ = step(state, action)
+    state, _reward, _ = step(state, action)
+    reward += _reward
+    print(state, action, reward)
